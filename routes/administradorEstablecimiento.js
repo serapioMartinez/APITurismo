@@ -98,7 +98,7 @@ router.post('/insertarFotos', async (req, res) => {
     const data = req.body;
     try {
         console.log("Subiendo fotos de la ciudad");
-        res.status(201).send(await admin.insertarFotos(data.images, data.establecimiento)); 
+        res.status(201).send(await admin.insertarFotos(data.images_data, data.establecimiento)); 
     } catch (error) {
         console.log(error)
         res.status(401).send({ "error": error.message })

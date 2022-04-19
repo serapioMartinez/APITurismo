@@ -59,6 +59,24 @@ async function insertarFotos(data,id_establecimiento){
     return [];
 }
 //async function eliminarFotos(){};
+async function insertarSalidaTransporte(transporte, destino, dia, duracion, horas){
+    const result = await db.query("INSERT INTO salidas_transporte(salidas_transporte._idTransporte, salidas_transporte._idCiudadDestino, salidas_transporte.dia, salidas_transporte.duracionViaje) VALUES(?,?,?,?)",[transporte, destino, dia, duracion]);
+    if(result.affectedRows>0){
+        let array=[]
+        let query="INSERT INTO hora_salida(hora_salida._idSalidasTransporte, hora_salida.hora)"
+        horas.forEach(hora => {
+            query+=` VALUES(${result.insertId},?),`;
+            array.push(hora);
+        });
+        query=query.substring(0,query.length-1)
+        return await db.query(query,array);
+    }
+    return [];
+}
+async function eliminarSalidaTransporte(id){
+    return await db.query("DELETE from salidas_transporte WHERE salidas_transporte.idSalidasTransporte=?",[id]);
+
+}
 module.exports={
     checkPermission,
     crearEstablecimiento,
