@@ -19,7 +19,7 @@ const checkPermission = async function (req, res, next) {
 router.use(express.static('public'))
 
 router.use(checkPermission);
-router.post('/generarCiudad', async (req, res) => {
+router.post('/ciudad', async (req, res) => {
     console.log(req.body)
     try {
         const existencia = await admin.revisarExistenciaAdministracion(req.body.username);
@@ -42,11 +42,18 @@ router.post('/generarCiudad', async (req, res) => {
     }
 });
 
-router.post('/modificarDatosCiudad',async (req, res, next) => {
+router.put('/ciudad',async (req, res, next) => {
     const data = req.body;
     try {
         console.log(req.body);
-        res.json(await admin.modificarCiudad(data.username, data.correo, data.telefono, data.magico,data.tipos, data.emergencias,data.descripcion));
+        res.json(await admin.modificarCiudad(
+            data.username, 
+            data.correo, 
+            data.telefono, 
+            data.magico,
+            data.tipos, 
+            data.emergencias,
+            data.descripcion));
     } catch (error) {
         console.log("Error al realizar la operacion " + Date.now());
         res.json({ 'error': error.message });

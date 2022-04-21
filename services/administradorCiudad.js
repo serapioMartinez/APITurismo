@@ -92,24 +92,7 @@ async function getCountITEMS(id_ciudad, item="PLATILLOS"){
     }
     return db.query(query,[id_ciudad]);
 }
-async function getPlatillos(id_ciudad, page=0){
-    return db.query(`SELECT platillos.idPlatillos as ID, platillos.nombre as NOMBRE WHERE platillos._idCiudad=? LIMIT ${page*10},10`,[id_ciudad]);
-}
-async function getZonasTuristicas(id_ciudad, page=0){
-    return db.query(`SELECT zonas_turisticas.idZonaTuristica as ID, zonas_turisticas.nombre as NOMBRE, zonas_turisticas.tipoZona as TIPO from zonas_turisticas WHERE zonas_turisticas._idCiudad=? LIMIT ${page*10},10`,[id_ciudad]);
-}
-async function getFestividades(id_ciudad, page=0){
-    return db.query(`SELECT festividad.idFecha as ID, festividad.nombre as NOMBRE from festividad WHERE festividad._idCiudad=? limit ${page*10},1`,[id_ciudad]);
-}
-async function getPersonajes(id_ciudad, page=0){
-    return db.query(`SELECT personajes_importantes.idPersonajes as ID, personajes_importantes.nombre as NOMBRE FROM personajes_importantes WHERE personajes_importantes._idCiudad=? limit ${page*10},1`,[id_ciudad]);
-}
-async function getNotasCiudad(id_ciudad, page=0){
-    return db.query(`SELECT notas_ciudad.idNotaCiudad as ID, notas_ciudad.titulo AS TITULO, notas_ciudad.fechaPublicacion AS FECHA FROM notas_ciudad WHERE notas_ciudad._idCiudad=? LIMIT ${page*10},1`,[id_ciudad]);
-}
-async function getEstablecimientos(id_ciudad, page=0){
-    return db.query(`SELECT establecimientos.idEstablecimiento AS ID, establecimientos.nombre AS NOMBRE, direccion.idDireccion AS DIRECCION, IF(establecimientos.pro=1,establecimiento_pro.calificacion,0) AS CALIFICACION FROM establecimientos JOIN direccion ON direccion._idEstablecimiento=establecimientos.idEstablecimiento LEFT JOIN establecimiento_pro ON establecimiento_pro._idEstablecimiento=establecimientos.idEstablecimiento WHERE direccion._idCiudad=? LIMIT ${page*10},10`,[id_ciudad]);
-}
+
 //DELETE
 async function removeITEM(itemID, item){
     let query="";
@@ -150,11 +133,5 @@ module.exports = {
     agregarPersonaje,
     agregarEstablecimiento,
     getCountITEMS,
-    getFestividades,
-    getNotasCiudad,
-    getPersonajes,
-    getPlatillos,
-    getZonasTuristicas,
-    getEstablecimientos,
     removeITEM
 }

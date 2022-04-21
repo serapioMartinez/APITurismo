@@ -86,5 +86,7 @@ module.exports={
     modificarHorarioAtencion,
     crearDireccion,
     modificarDireccion,
-    insertarFotos
+    insertarFotos,
+    insertarSalidaTransporte,
+    eliminarSalidaTransporte
 }

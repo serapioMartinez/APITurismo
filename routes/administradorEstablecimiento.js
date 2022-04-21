@@ -17,7 +17,7 @@ const checkPermission = async function (req, res, next) {
 
 router.use(checkPermission);
 
-router.post('/crearEstablecimiento', async (req, res) => {
+router.post('/establecimiento', async (req, res) => {
     const data = req.body;
     try {
         console.log(req.body);
@@ -27,6 +27,18 @@ router.post('/crearEstablecimiento', async (req, res) => {
         res.json({ 'error': error.message });
     }
 });
+
+router.put('/establecimiento', async (req, res) => {
+    const data = req.body;
+    try {
+        console.log(req.body);
+        res.json(await admin.modificarEstablecimiento(data.establecimiento, data.nombre, data.tipo, data.correo, data.telefono, data.pagina, data.maps));
+    } catch (error) {
+        console.log("Error al realizar la operacion " + Date.now());
+        res.json({ 'error': error.message });
+    }
+});
+
 
 router.post('/reclamarEstablecimiento', async (req, res) => {
     const data = req.body;
@@ -39,18 +51,8 @@ router.post('/reclamarEstablecimiento', async (req, res) => {
     }
 });
 
-router.post('/modificarEstablecimiento', async (req, res) => {
-    const data = req.body;
-    try {
-        console.log(req.body);
-        res.json(await admin.modificarEstablecimiento(data.establecimiento, data.nombre, data.tipo, data.correo, data.telefono, data.pagina, data.maps));
-    } catch (error) {
-        console.log("Error al realizar la operacion " + Date.now());
-        res.json({ 'error': error.message });
-    }
-});
 
-router.post('/crearHorarioAtencion', async (req, res) => {
+router.post('/horarioAtencion', async (req, res) => {
     const data = req.body;
     try {
         console.log(req.body);
@@ -61,7 +63,7 @@ router.post('/crearHorarioAtencion', async (req, res) => {
     }
 });
 
-router.post('/modificarHorarioAtencion', async (req, res) => {
+router.put('/horarioAtencion', async (req, res) => {
     const data = req.body;
     try {
         console.log(req.body);
@@ -72,7 +74,7 @@ router.post('/modificarHorarioAtencion', async (req, res) => {
     }
 });
 
-router.post('/crearDireccion', async (req, res) => {
+router.post('/direccion', async (req, res) => {
     const data = req.body;
     try {
         console.log(req.body);
@@ -83,7 +85,7 @@ router.post('/crearDireccion', async (req, res) => {
     }
 });
 
-router.post('/modificarDireccion', async (req, res) => {
+router.put('/direccion', async (req, res) => {
     const data = req.body;
     try {
         console.log(req.body);

@@ -1,10 +1,13 @@
 const express = require('express');
 const port = process.env.PORT || 5000;
 const app = express();
-const non_users = require('./routes/non_users');
+
 const drive = require('./services/drive/drive');
+const non_users = require('./routes/non_users');
 const admin_ciudad =  require('./routes/administradorCiudad');
 const admin_establecimiento = require('./routes/administradorEstablecimiento');
+const users_app = require('./routes/user_app');
+const create_users= require('./routes/createUsers');
 const bodyParser = require('body-parser');
 /*
 var multer = require('multer');
@@ -35,9 +38,11 @@ app.get("/google/callback", function (req, res) {
   });
 
 app.use('/no_users',non_users);
+app.use('/user_app',users_app);
 app.use('/admin_ciudad',admin_ciudad);
 app.use('/admin_establecimiento', admin_establecimiento);
 app.use('/images',drive.router);
+app.use('/create_user', create_users);
 
 app.listen(port, () => {
     console.log(`Servidor escuchando en el puerto ${port}`);
