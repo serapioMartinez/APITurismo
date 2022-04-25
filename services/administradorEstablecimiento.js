@@ -22,7 +22,7 @@ async function modificarEstablecimiento(establecimiento, nombre, tipo, correo=""
     return row;
 };
 async function crearHorarioAtencion(idEstablecimiento, lunes="-", martes="-", miercoles="-", jueves="-", viernes="-", sabado="-", domingo="-"){
-    const row = await db.query("INSERT INTO horario_atencion(horario_atencion._idEstablecimiento, horario_atencion.lunes, horario_atencion.martes, horario_atencion.miercoles, horario_atencion.jueves, horario_atencion.viernes, horario_atencion.sabado, horario_atencion.domingo) VALUES(?,?,?,?,?,?,?)",[idEstablecimiento, lunes, martes, miercoles, jueves, viernes, sabado, domingo]);
+    const row = await db.query("INSERT INTO horario_atencion(horario_atencion._idEstablecimiento, horario_atencion.lunes, horario_atencion.martes, horario_atencion.miercoles, horario_atencion.jueves, horario_atencion.viernes, horario_atencion.sabado, horario_atencion.domingo) VALUES(?,?,?,?,?,?,?,?)",[idEstablecimiento, lunes, martes, miercoles, jueves, viernes, sabado, domingo]);
     console.log( row)
     return row;
 };

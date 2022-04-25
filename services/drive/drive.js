@@ -27,13 +27,14 @@ const oAuth2Client = new google.auth.OAuth2(
 );
 
 function autorizar() {
-    console.log("Autorizando")
-    console.log(OAuth2Data.web)
+    console.log("Autorizando acceso a Drive...")
+    //console.log(OAuth2Data.web)
     fs.readFile(TOKEN_PATH, (err, token) => {
         if (err) return obtenerAccessToken(oAuth2Client);
         oAuth2Client.setCredentials(JSON.parse(token));
         authed = true;
-        console.log(JSON.parse(token))
+        console.log("Acceso autorizado")
+        //console.log(JSON.parse(token))
     });
 }
 
@@ -52,6 +53,7 @@ function obtenerAccessToken(oAuth2Client) {
         oAuth2Client.getToken(code, (err, token) => {
             if (err) return console.error('Error retrieving access token', err);
             oAuth2Client.setCredentials(token);
+            console.log("Acceso autorizado")
             // Store the token to disk for later program executions
             fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
                 if (err) return console.error(err);
@@ -66,6 +68,7 @@ const imageStorage = multer.diskStorage({
     //Destino para almacenar la imagen
     destination: 'images',
     filename: (req, file, callback) => {
+        console.log("Guardando archivo")
         callback(null, file.fieldname + '_' + Date.now() + path.extname(file.originalname));
     }
 });
@@ -119,8 +122,8 @@ const checkPermissionUser = async function(req, res, next){
         console.log(`Permisos verificados:\n ${permission}`);
         if (permission) next();
         else {
-            fs.unlinkSync(req.file.path);
             console.log("Falta de permisos para realizar operación")
+            fs.unlinkSync(req.file.path);
             res.json({ error: "Falta de permisos para realizar operación" });
         }
     }catch (err) {
