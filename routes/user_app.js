@@ -15,8 +15,10 @@ const checkPermission = async function (req, res, next) {
     }
 };
 
+router.use(checkPermission);
+
 router.post('/calificarCiudad', async (req, res) => {
-    const data = req.body;
+    const data = req.body.data;
     try {
         console.log(req.body);
         res.json(await user.calificarCiudad(data.idUsuario, data.idCiudad, data.calificacion));
@@ -27,7 +29,7 @@ router.post('/calificarCiudad', async (req, res) => {
 });
 
 router.post('/calificarEstablecimiento', async (req, res) => {
-    const data = req.body;
+    const data = req.body.data;
     try {
         console.log(req.body);
         res.json(await user.calificarEstablecimiento(data.idUsuario, data.idEstablecimiento, data.calificacion));
@@ -38,7 +40,7 @@ router.post('/calificarEstablecimiento', async (req, res) => {
 });
 
 router.post('/publicarResenhaCiudad', async (req, res) => {
-    const data = req.body;
+    const data = req.body.data;
     try {
         console.log(req.body);
         res.json(await user.publicarResenhaCiudad(data.idUsuario, data.idCiudad, data.contenido));
@@ -49,7 +51,7 @@ router.post('/publicarResenhaCiudad', async (req, res) => {
 });
 
 router.post('/publicarResenhaEstablecimiento', async (req, res) => {
-    const data = req.body;
+    const data = req.body.data;
     try {
         console.log(req.body);
         res.json(await user.publicarResenhaEstablecimiento(data.idUsuario, data.idEstablecimiento, data.contenido));
@@ -60,7 +62,7 @@ router.post('/publicarResenhaEstablecimiento', async (req, res) => {
 });
 
 router.post("/entrada_agenda",async (req, res) => {
-    const data = req.body;
+    const data = req.body.data;
     try {
         console.log(req.body);
         res.json(await user.agregarEntradaAgenda(
@@ -76,7 +78,7 @@ router.post("/entrada_agenda",async (req, res) => {
 });
 
 router.delete("/entrada_agenda",async (req, res) => {
-    const data = req.body;
+    const data = req.body.data;
     try {
         console.log(req.body);
         res.json(await user.eliminarEntradaAgenda(data.idEntrada));
@@ -87,7 +89,7 @@ router.delete("/entrada_agenda",async (req, res) => {
 });
 
 router.get('/reseñasCiudad',async (req, res) => {
-    const data = req.body;
+    const data = req.body.data;
     try {
         console.log(req.body);
         res.json(await user.obtenerResenhasCiudad(data.idCiudad, data.page));
@@ -98,7 +100,7 @@ router.get('/reseñasCiudad',async (req, res) => {
 });
 
 router.post('/reseñasCiudad',async (req, res) => {
-    const data = req.body;
+    const data = req.body.data;
     try {
         console.log(req.body);
         res.json(await user.publicarResenhaCiudad(data.idUsuario, data.idCiudad, data.contenido));
@@ -109,7 +111,7 @@ router.post('/reseñasCiudad',async (req, res) => {
 });
 
 router.get('/reseñasEstablecimiento',async (req, res) => {
-    const data = req.body;
+    const data = req.body.data;
     try {
         console.log(req.body);
         res.json(await user.obtenerResenhasEstablecimientos(data.idEstablecimiento, data.page));
@@ -120,7 +122,7 @@ router.get('/reseñasEstablecimiento',async (req, res) => {
 });
 
 router.post('/reseñasEstablecimiento',async (req, res) => {
-    const data = req.body;
+    const data = req.body.data;
     try {
         console.log(req.body);
         res.json(await user.publicarResenhaEstablecimiento(data.idUsuario, data.idEstablecimiento, data.contenido));

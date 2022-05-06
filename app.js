@@ -9,6 +9,7 @@ const admin_establecimiento = require('./routes/administradorEstablecimiento');
 const users_app = require('./routes/user_app');
 const create_users= require('./routes/createUsers');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 /*
 var multer = require('multer');
 var upload = multer();
@@ -20,6 +21,7 @@ app.use(
         extended:true
     })
 );
+app.use(cors());
 /*
 app.use(upload.any()); 
 app.use(express.static('public'));

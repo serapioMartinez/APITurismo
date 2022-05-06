@@ -3,7 +3,7 @@ const router = express.Router();
 const users = require('../services/createUsers');
 
 const unicidadUsuario = async function (req, res, next) {
-    data = req.body;
+    data = req.body.data;
     params = req.params;
     console.log(data)
     console.log(params)
@@ -30,7 +30,7 @@ const unicidadUsuario = async function (req, res, next) {
 }
 
 router.post('/:typeUser', unicidadUsuario, async (req, res) => {
-    const data = req.body;
+    const data = req.body.data;
     const params = req.params;
     console.log(data)
     console.log(params)

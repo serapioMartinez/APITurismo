@@ -33,7 +33,8 @@ router.get('/busqueda/establecimientos/:idCiudad', async function(req,res, next)
 });
 router.get("/lugares/:idCiudad", async (req,res) => {
     try{
-        res.json(await non_users.obtenerDatosCiudad(req.params.idCiudad));
+        const result= await non_users.obtenerDatosCiudad(req.params.idCiudad)
+        res.json(result[0]);
    }catch(err){
        console.log("Error mientras se obtenian los datos de Home", err.message);
        res.json({error: err.message});
@@ -74,16 +75,16 @@ router.get("/items/:idCiudad/:tipoItem", async (req,res) => {
         const page = req.query.page||0;
         let result;
         switch(tipoItem){
-            case "PLATILLO":
+            case "PLATILLOS":
                 result = await non_users.consultarPlatillos(idCiudad, page);
                 break;
-            case "ZONA":
+            case "ZONAS":
                 result = await non_users.consultarZonasTuristicas(idCiudad, page);
                 break;
-            case "FESTIVIDAD":
+            case "FESTIVIDADES":
                 result = await non_users.consultarFestividades(idCiudad, page);
                 break;
-            case "PERSONAJE":
+            case "PERSONAJES":
                 result = await non_users.consultarPersonajes(idCiudad, page);
                 break;
             case "NOTAS":

@@ -4,8 +4,9 @@ const admin = require('../services/administradorEstablecimiento');
 
 const checkPermission = async function (req, res, next) {
     console.log(req.body);
+    const data = req.body.data;
     try {
-        const permission = await admin.checkPermission(req.body.username, req.body.pass);
+        const permission = await admin.checkPermission(data.username, data.pass);
         console.log(permission);
         if (permission) next()
         else res.json({ error: "Falta de permisos para realizar operación" });
@@ -15,10 +16,47 @@ const checkPermission = async function (req, res, next) {
     }
 };
 
-router.use(checkPermission);
-
-router.post('/establecimiento', async (req, res) => {
-    const data = req.body;
+//router.use(checkPermission);
+router.post('/sesion', async (req,res)=> {
+    console.log(req.body);
+    const data = req.body.data;
+    try {
+        const userData = await admin.iniciarSesion(data.username, data.pass);
+        
+        res.status(200).json(userData)
+    } catch (err) {
+        res.status(400).send({error:err.message})
+    }
+})
+router.get('/usuario', async (req, res) => {
+    console.log(req.query);
+    try {
+        const userData =await admin.obtenerDatosUsuario(req.query.id);
+        res.status(200).json(userData[0]);
+    } catch (error) {
+        res.status(400).send({error: error.message})
+    }
+});
+router.put('/usuario', async (req, res )=>{
+    console.log(req.body);
+    const data = req.body.data;
+    try{
+        const row= await admin.actualizarDatosUsuario(data.id,data.newUsername, data.nombre, data.correo, data.cargo, data.foto)
+        if(row.affectedRows)res.status(200).send({
+            status: "OK",
+            affectedRows: row.affectedRows
+        })
+        else res.status(200).send({
+            status: "BAD",
+            affectedRows: 0
+        })
+    }catch(err){
+        console.log("Ha ocurrido un error mientras se actualizaba usuario.",err.message)
+        res.status(400).send({error: err.message})
+    }
+})
+router.post('/establecimiento',checkPermission, async (req, res) => {
+    const data = req.body.data;
     try {
         console.log(req.body);
         res.json(await admin.crearEstablecimiento(
@@ -40,8 +78,8 @@ router.post('/establecimiento', async (req, res) => {
     }
 });
 
-router.put('/establecimiento', async (req, res) => {
-    const data = req.body;
+router.put('/establecimiento', checkPermission ,async (req, res) => {
+    const data = req.body.data;
     try {
         console.log(req.body);
         const result = await admin.modificarEstablecimiento(
@@ -60,7 +98,7 @@ router.put('/establecimiento', async (req, res) => {
 });
 
 
-router.post('/reclamarEstablecimiento', async (req, res) => {
+router.post('/reclamarEstablecimiento', checkPermission, async (req, res) => {
     const data = req.body;
     try {
         console.log(req.body);
@@ -74,7 +112,7 @@ router.post('/reclamarEstablecimiento', async (req, res) => {
 });
 
 
-router.post('/horarioAtencion', async (req, res) => {
+router.post('/horarioAtencion', checkPermission, async (req, res) => {
     const data = req.body;
     try {
         console.log(req.body);
@@ -93,7 +131,7 @@ router.post('/horarioAtencion', async (req, res) => {
     }
 });
 
-router.put('/horarioAtencion', async (req, res) => {
+router.put('/horarioAtencion', checkPermission, async (req, res) => {
     const data = req.body;
     try {
         console.log(req.body);
@@ -112,7 +150,7 @@ router.put('/horarioAtencion', async (req, res) => {
     }
 });
 
-router.post('/direccion', async (req, res) => {
+router.post('/direccion', checkPermission, async (req, res) => {
     const data = req.body;
     try {
         console.log(req.body);
@@ -129,7 +167,7 @@ router.post('/direccion', async (req, res) => {
     }
 });
 
-router.put('/direccion', async (req, res) => {
+router.put('/direccion', checkPermission, async (req, res) => {
     const data = req.body;
     try {
         console.log(req.body);
@@ -146,7 +184,7 @@ router.put('/direccion', async (req, res) => {
     }
 });
 
-router.post('/insertarFotos', async (req, res) => {
+router.post('/insertarFotos', checkPermission, async (req, res) => {
     const data = req.body;
     try {
         console.log("Subiendo fotos de la ciudad");

@@ -6,13 +6,27 @@ async function checkPermission(username, pass) {
     if (!row.length) return false;
     else return true;
 }
+async function iniciarSesion(username, pass){
+    const row = await db.query("SELECT administrador_ciudad.idUsuario AS ID, IF(ciudades.idCiudad, ciudades.idCiudad,NULL) as CIUDAD FROM administrador_ciudad left join ciudades ON ciudades._id_administrador=administrador_ciudad.idUsuario WHERE administrador_ciudad.nombreUsuario=? AND administrador_ciudad.claveAcceso=?",
+    [username,pass]);
+    return row[0];
+}
+async function obtenerDatosUsuario(id){
+    const row = await db.query("SELECT administrador_ciudad.nombre AS NOMBRE, administrador_ciudad.correo AS CORREO, administrador_ciudad.imagenUsuario AS FOTO, administrador_ciudad.cargoCiudad AS CARGO FROM administrador_ciudad WHERE administrador_ciudad.idUsuario=?",[id]);
+    return row;
+}
 async function revisarExistenciaAdministracion(username) {
     const row = await db.query("SELECT ciudades.idCiudad as ID, ciudades.nombreCiudad as NOMBRE from ciudades JOIN administrador_ciudad on administrador_ciudad.idUsuario=ciudades._id_administrador WHERE administrador_ciudad.nombreUsuario=?",
         [username]);
     return row;
 }
+async function actualizarDatosUsuario(id, username, nombre, correo, cargo, foto=null){
+    const row = await db.query("UPDATE administrador_ciudad SET administrador_ciudad.nombreUsuario=?, administrador_ciudad.nombre=?, administrador_ciudad.correo=?, administrador_ciudad.cargoCiudad=?, administrador_ciudad.imagenUsuario=? WHERE administrador_ciudad.idUsuario=?",
+    [username, nombre, correo, cargo, foto, id]);
+    return row;
+}
 //Generadores de datos - CREATE, UPDATE 
-async function generarCiudad(username, ciudad, region, municipio, correo, telefono, magico = 0, tipos, emergencias, descripcion) {
+async function generarCiudad(username, ciudad, region, municipio, correo, telefono, magico = 0, tipos="AV", emergencias, descripcion) {
     const row = await db.query("CALL crearCiudad(?,?,?,?,?,?,?,?,?,?)",
         [username, ciudad, region, municipio, correo, telefono, magico, tipos, emergencias, descripcion]);
     return row;
@@ -121,6 +135,9 @@ async function removeITEM(itemID, item){
 
 module.exports = {
     checkPermission,
+    iniciarSesion,
+    obtenerDatosUsuario,
+    actualizarDatosUsuario,
     revisarExistenciaAdministracion,
     generarCiudad,
     modificarCiudad,

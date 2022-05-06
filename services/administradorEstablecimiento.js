@@ -6,6 +6,25 @@ async function checkPermission(username, pass) {
     if (!row.length) return false;
     else return true;
 }
+async function iniciarSesion(username, pass){
+    const row = await db.query("SELECT administrador_establecimiento.idUsuario AS ID FROM administrador_establecimiento WHERE administrador_establecimiento.nombreUsuario=? AND administrador_establecimiento.claveAcceso=?",
+    [username,pass]);
+    return row[0];
+}  
+async function revisarExistenciaAdministracion(username) {
+    const row = await db.query("SELECT establecimientos.idEstablecimiento as ID, establecimientos.nombre as NOMBRE from establecimiento_pro JOIN administrador_establecimiento on administrador_establecimiento.idUsuario=establecimiento_pro._idAdministrador JOIN establecimientos ON establecimientos.idEstablecimiento=establecimiento_pro._idEstablecimiento WHERE administrador_establecimiento.nombreUsuario=?",
+        [username]);
+    return row;
+}
+async function obtenerDatosUsuario(id){
+    const row = await db.query("SELECT administrador_establecimiento.nombre AS NOMBRE, administrador_establecimiento.correo AS CORREO, administrador_establecimiento.imagenUsuario AS FOTO, administrador_establecimiento.cargoEmpresa AS CARGO FROM administrador_establecimiento WHERE administrador_establecimiento.idUsuario=?",[id]);
+    return row;
+}
+async function actualizarDatosUsuario(id, username, nombre, correo, cargo, foto=null){
+    const row = await db.query("UPDATE administrador_establecimiento SET administrador_establecimiento.nombreUsuario=?, administrador_establecimiento.nombre=?, administrador_establecimiento.correo=?, administrador_establecimiento.cargoEmpresa=?, administrador_establecimiento.imagenUsuario=? WHERE administrador_establecimiento.idUsuario=?",
+    [username, nombre, correo, cargo, foto, id]);
+    return row;
+}
 async function crearEstablecimiento(username, nombre, correo="", telefono, tipo, ciudad, colonia, numero, cp, calle, pagina="", maps=""){
     const row =await db.query("CALL crearEstablecimiento(?,?,?,?,?,?,?,?,?,?,?,?)",[username, nombre, correo, telefono, tipo, ciudad, colonia, numero, cp, calle, pagina, maps]);
     console.log( row)
@@ -79,6 +98,10 @@ async function eliminarSalidaTransporte(id){
 }
 module.exports={
     checkPermission,
+    iniciarSesion,
+    revisarExistenciaAdministracion,
+    obtenerDatosUsuario,
+    actualizarDatosUsuario,
     crearEstablecimiento,
     modificarEstablecimiento,
     reclamarEstablecimiento,

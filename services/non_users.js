@@ -36,10 +36,10 @@ async function consultarEstablecimientos(idCiudad=0, tipo="NT", page=0){
 async function consultarNotas(idCiudad=0, page=0){
     let query="";
     if(idCiudad==0){
-        query=`SELECT notas_ciudad.idNotaCiudad as ID, notas_ciudad.titulo as TITULO, notas_ciudad.fechaPublicacion AS FECHA, ciudades.nombreCiudad AS CIUDAD FROM notas_ciudad JOIN ciudades ON notas_ciudad._idCiudad=ciudades.idCiudad ORDER BY notas_ciudad.fechaPublicacion DESC LIMIT ${page*10},10`;
+        query=`SELECT notas_ciudad.idNotaCiudad as ID, notas_ciudad.titulo as NOMBRE, notas_ciudad.fechaPublicacion AS FECHA, ciudades.nombreCiudad AS CIUDAD FROM notas_ciudad JOIN ciudades ON notas_ciudad._idCiudad=ciudades.idCiudad ORDER BY notas_ciudad.fechaPublicacion DESC LIMIT ${page*10},10`;
         return db.query(query,[])
     }else{
-        query=`SELECT notas_ciudad.idNotaCiudad as ID, notas_ciudad.titulo as TITULO, notas_ciudad.fechaPublicacion AS FECHA, ciudades.nombreCiudad AS CIUDAD FROM notas_ciudad JOIN ciudades ON notas_ciudad._idCiudad=ciudades.idCiudad WHERE notas_ciudad._idCiudad=? ORDER BY notas_ciudad.fechaPublicacion DESC LIMIT ${page*10},10`;
+        query=`SELECT notas_ciudad.idNotaCiudad as ID, notas_ciudad.titulo as NOMBRE, notas_ciudad.fechaPublicacion AS FECHA, ciudades.nombreCiudad AS CIUDAD FROM notas_ciudad JOIN ciudades ON notas_ciudad._idCiudad=ciudades.idCiudad WHERE notas_ciudad._idCiudad=? ORDER BY notas_ciudad.fechaPublicacion DESC LIMIT ${page*10},10`;
         return db.query(query,[idCiudad])
     }
 }

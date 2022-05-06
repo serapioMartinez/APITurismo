@@ -16,7 +16,7 @@ const REDIRECT_URL = OAuth2Data.web.redirect_uris[0];
 
 var authed = false;
 
-const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
+const SCOPES = ['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/drive.readonly'];
 
 const TOKEN_PATH = `${__dirname}/token.json`;
 
@@ -83,7 +83,7 @@ const checkPermissionCity = async function (req, res, next) {
 
     console.log("Revisando permisos")
     try {
-        const permission = await adminCiudad.checkPermission(req.body.username, req.body.pass);
+        const permission = await adminCiudad.checkPermission(req.body.data.username, req.body.data.pass);
         console.log(`Permisos verificados:\n ${permission}`);
         if (permission) next();
         else {
@@ -101,7 +101,7 @@ const checkPermissionEstablishment = async function (req, res, next) {
 
     console.log("Revisando permisos")
     try {
-        const permission = await adminEstablecimiento.checkPermission(req.body.username, req.body.pass);
+        const permission = await adminEstablecimiento.checkPermission(req.body.data.username, req.body.data.pass);
         console.log(`Permisos verificados:\n ${permission}`);
         if (permission) next();
         else {
@@ -118,7 +118,7 @@ const checkPermissionEstablishment = async function (req, res, next) {
 const checkPermissionUser = async function(req, res, next){
     console.log("Revisando persimos de usuario");
     try{
-        const permission = await user.checkPermission(req.body.username, req.body.pass);
+        const permission = await user.checkPermission(req.body.data.username, req.body.data.pass);
         console.log(`Permisos verificados:\n ${permission}`);
         if (permission) next();
         else {
@@ -150,7 +150,7 @@ router.post('/uploadRepresentativaCiudad', imageUpload.single('image'), checkPer
     drive.files.create({
         resource: fileMetadata,
         media: media,
-        fields: 'id, name, webContentLink',
+        fields: 'id, name, webContentLink, hasThumbnail, thumbnailLink',
     }, function (err, resp) {
         if (err) {
             //Handle error
@@ -349,7 +349,7 @@ router.post('/uploadTopicPhoto', imageUpload.single('image'), checkPermissionCit
     console.log(req.body);
     const drive = google.drive({ version: "v3", auth: oAuth2Client });
     var fileMetadata = {
-        name: `topic_city_${req.body.username}_${Date.now()}${path.extname(req.file.originalname)}`,
+        name: `topic_city_${req.body.data.username}_${Date.now()}${path.extname(req.file.originalname)}`,
         parents: ['1xjNFPDODv1S0myW1FY762074CEm7XL-O'],//Id del folder
     };
     var media = {
@@ -395,7 +395,7 @@ router.post('/uploadUserProfilePhoto', imageUpload.single('image'), checkPermiss
     console.log(req.body);
     const drive = google.drive({ version: "v3", auth: oAuth2Client });
     var fileMetadata = {
-        name: `profile_photo_${req.body.username}_${Date.now()}${path.extname(req.file.originalname)}`,
+        name: `profile_photo_${req.body.data.username}_${Date.now()}${path.extname(req.file.originalname)}`,
         parents: ['1OESbk59DrnLNChCjys_otR-f_KbBrfOL'],//Id del folder
     };
     var media = {
@@ -442,7 +442,7 @@ router.post('/uploadAdminCityProfilePhoto', imageUpload.single('image'), checkPe
     console.log(req.body);
     const drive = google.drive({ version: "v3", auth: oAuth2Client });
     var fileMetadata = {
-        name: `profile_photo_${req.body.username}_${Date.now()}${path.extname(req.file.originalname)}`,
+        name: `profile_photo_${req.body.data.username}_${Date.now()}${path.extname(req.file.originalname)}`,
         parents: ['1OESbk59DrnLNChCjys_otR-f_KbBrfOL'],//Id del folder
     };
     var media = {
@@ -489,7 +489,7 @@ router.post('/uploadAdminEstablishmentProfilePhoto', imageUpload.single('image')
     console.log(req.body);
     const drive = google.drive({ version: "v3", auth: oAuth2Client });
     var fileMetadata = {
-        name: `profile_photo_${req.body.username}_${Date.now()}${path.extname(req.file.originalname)}`,
+        name: `profile_photo_${req.body.data.username}_${Date.now()}${path.extname(req.file.originalname)}`,
         parents: ['1OESbk59DrnLNChCjys_otR-f_KbBrfOL'],//Id del folder
     };
     var media = {

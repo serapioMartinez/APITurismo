@@ -3,11 +3,14 @@ const router = express.Router();
 const admin = require('../services/administradorCiudad');
 
 const checkPermission = async function (req, res, next) {
-    console.log(req.body);
+    console.log("Revisando Permisos")
+    const data = req.body.data;
     try {
-        const permission = await admin.checkPermission(req.body.username, req.body.pass);
+        const permission = await admin.checkPermission(data.username, data.pass);
         console.log(permission);
-        if (permission) next()
+        if (permission) {
+            console.log("Acceso aceptado")
+            next()}
         else res.json({ error: "Falta de permisos para realizar operación" });
     } catch (err) {
         console.log("Un error ha ocurrido mientras verificaba permisos");
@@ -18,23 +21,65 @@ const checkPermission = async function (req, res, next) {
 //router.use(imageUpload.any());
 //router.use(express.static('public'))
 
-router.use(checkPermission);
-router.post('/ciudad', async (req, res) => {
-    console.log(req.body)
+router.get('/usuario', async (req, res)=>{
+    console.log(req.query);
     try {
-        const existencia = await admin.revisarExistenciaAdministracion(req.body.username);
+        const userData =await admin.obtenerDatosUsuario(req.query.id);
+        res.status(200).json(userData[0]);
+    } catch (error) {
+        res.status(400).send({error: error.message})
+    }
+});
+router.put('/usuario', checkPermission, async (req, res)=>{
+    console.log(req.body);
+    const data = req.body.data;
+    try{
+        const row= await admin.actualizarDatosUsuario(data.id,data.newUsername, data.nombre, data.correo, data.cargo, data.foto)
+        if(row.affectedRows)res.status(200).send({
+            status: "OK",
+            affectedRows: row.affectedRows
+        })
+        else res.status(200).send({
+            status: "BAD",
+            affectedRows: 0
+        })
+    }catch(err){
+        console.log("Ha ocurrido un error mientras se actualizaba usuario.",err.message)
+        res.status(400).send({error: err.message})
+    }
+})
+
+router.post('/sesion',checkPermission, async (req,res)=> {
+    console.log(req.body);
+    const data = req.body.data;
+    try {
+        const userData = await admin.iniciarSesion(data.username, data.pass);
+        res.status(200).json(userData)
+    } catch (err) {
+        res.status(400).send({error:err.message})
+    }
+});
+
+router.post('/ciudad',checkPermission, async (req, res) => {
+    console.log(req.body.data)
+    try {
+        const existencia = await admin.revisarExistenciaAdministracion(req.body.data.username);
         if (existencia.length) res.json([{existencia:existencia}]);
-        else res.json(await admin.generarCiudad(
-            req.body.username,
-            req.body.ciudad,
-            req.body.region,
-            req.body.municipio,
-            req.body.correo,
-            req.body.telefono,
-            req.body.magico,
-            req.body.tipos,
-            req.body.emergencias,
-            req.body.descripcion));
+        else {
+            console.log("No hay existencias")
+            const result =await admin.generarCiudad(
+                req.body.data.username,
+                req.body.data.ciudad,
+                req.body.data.region,
+                req.body.data.municipio,
+                req.body.data.correo,
+                req.body.data.telefono,
+                req.body.data.magico,
+                req.body.data.tipos,
+                req.body.data.emergencias,
+                req.body.data.descripcion)
+            res.status(201).json(result);
+        }
 
     } catch (error) {
         console.log("Error al realizar la operacion " + Date.now());
@@ -42,8 +87,8 @@ router.post('/ciudad', async (req, res) => {
     }
 });
 
-router.put('/ciudad',async (req, res, next) => {
-    const data = req.body;
+router.put('/ciudad',checkPermission,async (req, res, next) => {
+    const data = req.body.data;
     try {
         console.log(req.body);
         res.json(await admin.modificarCiudad(
@@ -61,7 +106,7 @@ router.put('/ciudad',async (req, res, next) => {
 });
 
 
-router.post('/subirRepresentativa',async (req, res) =>{
+router.post('/subirRepresentativa',checkPermission,async (req, res) =>{
     const data = req.body;
     console.log(data)
     try{
@@ -75,8 +120,8 @@ router.post('/subirRepresentativa',async (req, res) =>{
     }
 });
 
-router.post('/subirFotos', async (req, res)=> {
-    const data = req.body;
+router.post('/subirFotos',checkPermission, async (req, res)=> {
+    const data = req.body.data;
    try {
        console.log("Subiendo fotos de la ciudad");
        city_data = await admin.revisarExistenciaAdministracion(
@@ -95,8 +140,8 @@ router.post('/subirFotos', async (req, res)=> {
    }
 })
 
-router.post('/addPlatillo', async (req,res) => {
-    const data = req.body;
+router.post('/addPlatillo',checkPermission , async (req,res) => {
+    const data = req.body.data;
     try{
         console.log("Agregando platillo...");
         city_data = await(admin.revisarExistenciaAdministracion(
@@ -116,8 +161,8 @@ router.post('/addPlatillo', async (req,res) => {
     }
 });
 
-router.post('/addZonaTuristica', async (req,res) => {
-    const data = req.body;
+router.post('/addZonaTuristica',checkPermission, async (req,res) => {
+    const data = req.body.data;
     try{
         console.log("Agregando Zona Turistica...");
         city_data = await(admin.revisarExistenciaAdministracion(
@@ -138,8 +183,8 @@ router.post('/addZonaTuristica', async (req,res) => {
     }
 });
 
-router.post('/addFestividad', async (req,res) => {
-    const data = req.body;
+router.post('/addFestividad',checkPermission, async (req,res) => {
+    const data = req.body.data;
     try{
         console.log("Agregando festividad...");
         city_data = await(admin.revisarExistenciaAdministracion(
@@ -161,8 +206,8 @@ router.post('/addFestividad', async (req,res) => {
     }
 });
 
-router.post('/addPersonaje', async (req,res) => {
-    const data = req.body;
+router.post('/addPersonaje',checkPermission, async (req,res) => {
+    const data = req.body.data;
     try{
         console.log("Agregando personaje...");
         city_data = await(admin.revisarExistenciaAdministracion(
@@ -184,8 +229,8 @@ router.post('/addPersonaje', async (req,res) => {
     }
 });
 
-router.post('/addNota', async (req,res) => {
-    const data = req.body;
+router.post('/addNota',checkPermission, async (req,res) => {
+    const data = req.body.data;
     try{
         console.log("Agregando nota...");
         city_data = await(admin.revisarExistenciaAdministracion(
@@ -205,8 +250,8 @@ router.post('/addNota', async (req,res) => {
     }
 });
 
-router.post('/addEstablecimiento', async (req, res) => {
-    const data = req.body;
+router.post('/addEstablecimiento',checkPermission, async (req, res) => {
+    const data = req.body.data;
     try{
         console.log("Agregando establecimiento");
         city_data = await(admin.revisarExistenciaAdministracion(
