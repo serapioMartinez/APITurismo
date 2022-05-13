@@ -41,10 +41,13 @@ router.get("/lugares/:idCiudad", async (req,res) => {
    }
 });
 router.get("/establecimientos/:idEstablecimiento/:idCiudad", async (req,res) => {
+    console.log("Obteniendo datos de establecimiento")
     try {
         const idEstablecimiento = req.params.idEstablecimiento;
         const idCiudad = req.params.idCiudad;
-        res.json(await non_users.obtenerDatosEstablecimiento(idEstablecimiento,idCiudad));
+        const resul = await non_users.obtenerDatosEstablecimiento(idEstablecimiento,idCiudad)
+        console.log(resul)
+        res.send(resul[0]);
     } catch (err) {
         console.log("Error mientras se obtenian los datos de Home", err.message);
        res.json({error: err.message});
@@ -59,6 +62,24 @@ router.get("/establecimientosPro/:idEstablecimiento", async (req,res) => {
        res.json({error: err.message});
     }
 });
+router.get("/horario_atencion/:idEstablecimiento", async (req, res) => {
+    try {
+        const id=req.params.idEstablecimiento;
+        res.json(await non_users.obtenerHorariosAtencion(id));
+    } catch (err) {
+        console.log("Error mientras se obtenian los datos de Home", err.message);
+       res.json({error: err.message});
+    }
+})
+router.get("/direcciones/:idEstablecimiento", async (req, res) => {
+    try {
+        const id=req.params.idEstablecimiento;
+        res.json(await non_users.obtenerDirecciones(id));
+    } catch (err) {
+        console.log("Error mientras se obtenian los datos de Home", err.message);
+       res.json({error: err.message});
+    }
+})
 router.get("/salidasTransportes/:idEstablecimiento", async (req,res) => {
     try {
         const id=req.params.idEstablecimiento;
@@ -106,16 +127,16 @@ router.get("/item/:tipoItem/:idItem", async (req,res) => {
         const tipoItem = req.params.tipoItem.toUpperCase() || "NOTAS";
         let result;
         switch(tipoItem){
-            case "PLATILLO":
+            case "PLATILLOS":
                 result = await non_users.obtenerPlatillo(idItem);
                 break;
-            case "ZONA":
+            case "ZONAS":
                 result = await non_users.obtenerZonaTuristica(idItem);
                 break;
-            case "FESTIVIDAD":
+            case "FESTIVIDADES":
                 result = await non_users.obtenerFestividad(idItem);
                 break;
-            case "PERSONAJE":
+            case "PERSONAJES":
                 result = await non_users.obtenerPersonaje(idItem);
                 break;
             case "NOTAS":

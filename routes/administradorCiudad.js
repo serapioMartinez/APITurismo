@@ -5,6 +5,7 @@ const admin = require('../services/administradorCiudad');
 const checkPermission = async function (req, res, next) {
     console.log("Revisando Permisos")
     const data = req.body.data;
+    console.log(data)
     try {
         const permission = await admin.checkPermission(data.username, data.pass);
         console.log(permission);
@@ -105,15 +106,26 @@ router.put('/ciudad',checkPermission,async (req, res, next) => {
     }
 });
 
+router.post('/subirFotoPerfil', checkPermission, async (req, res )=> {
+    const data = req.body.data;
+    console.log(data);
+    try {
+        console.log("Subiendo foto de perfil de usuario");
+        res.status(201).send(await admin.subirFotoPerfil(data.username, data.foto))
+    } catch (error) {
+        console.log("Error al realizar la operacion " + Date.now());
+        res.status(401).json({ 'error': error.message });
+    }
+})
 
 router.post('/subirRepresentativa',checkPermission,async (req, res) =>{
-    const data = req.body;
+    const data = req.body.data;
     console.log(data)
     try{
         console.log(`Tratando se subir imagen representativa por ${data.username}`)
         res.status(201).send(await admin.subirRepresentativa(
             data.username,
-            data.imagen))
+            data.foto))
     }catch (error) {
         console.log("Error al realizar la operacion " + Date.now());
         res.status(401).json({ 'error': error.message });
@@ -140,7 +152,20 @@ router.post('/subirFotos',checkPermission, async (req, res)=> {
    }
 })
 
-router.post('/addPlatillo',checkPermission , async (req,res) => {
+router.post('/subirFotoItem', checkPermission, async (req, res)=>{
+    const data = req.body.data;
+    console.log(data)
+    try {
+        const resul = await admin.subirFotoItem(data.id, data.foto, data.item);
+        if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+        else res.status(201).send({error: "No se ha podido actualizar imagen en base de datos"});
+    } catch (error) {
+        console.log(error)
+       res.status(401).send({"error":error.message})
+    }
+})
+
+router.post('/platillos',checkPermission , async (req,res) => {
     const data = req.body.data;
     try{
         console.log("Agregando platillo...");
@@ -148,20 +173,43 @@ router.post('/addPlatillo',checkPermission , async (req,res) => {
             data.username));
         if(city_data.length){
             console.log(city_data);
-            res.status(201).send(await admin.agregarPlatillo(
-                data.username, 
+            const resul = await admin.agregarPlatillo(
                 city_data[0].ID, 
                 data.nombre, 
                 data.descripcion, 
-                data.foto));
+                data.foto);
+            if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+            else res.status(201).send({error: "No se ha podido agregar platillo"});
         }
     }catch (error) {
         console.log(error)
         res.status(401).send({"error":error.message})
     }
 });
+router.put('/platillos', checkPermission, async (req, res) => {
+    const data = req.body.data;
+    console.log(data)
+    try{
+        console.log('Actualizando informacion de platillo');
+        city_data = await(admin.revisarExistenciaAdministracion(
+            data.username));
+        if(city_data.length){
+            console.log(city_data);
+            const resul = await admin.modificarPlatillo(
+                data.id, 
+                data.nombre, 
+                data.descripcion, 
+                data.foto);
+            if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+            else res.status(201).send({error: "No se ha podido actualizar platillo"});
+        }
+    }catch(error ){
+        console.log(error)
+        res.status(401).send({"error":error.message})
+    }
+});
 
-router.post('/addZonaTuristica',checkPermission, async (req,res) => {
+router.post('/zonas',checkPermission, async (req,res) => {
     const data = req.body.data;
     try{
         console.log("Agregando Zona Turistica...");
@@ -169,13 +217,36 @@ router.post('/addZonaTuristica',checkPermission, async (req,res) => {
             data.username));
         if(city_data.length){
             console.log(city_data);
-            res.status(201).send(await admin.agregarZonaTuristica(
-                data.username, 
+            const result = await admin.agregarZonaTuristica(
                 city_data[0].ID, 
                 data.nombre, 
                 data.tipo, 
                 data.descripcion, 
-                data.foto));
+                data.foto);
+                if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+                else res.status(201).send({error: "No se ha podido agregar zona turistica"});
+        }
+    }catch (error) {
+        console.log(error)
+        res.status(401).send({"error":error.message})
+    }
+});
+router.put('/zonas',checkPermission, async (req,res) => {
+    const data = req.body.data;
+    try{
+        console.log("Actualizando Zona Turistica...");
+        city_data = await(admin.revisarExistenciaAdministracion(
+            data.username));
+        if(city_data.length){
+            console.log(city_data);
+            const result = await admin.modificarZonaTuristica(
+                data.id, 
+                data.nombre, 
+                data.tipo, 
+                data.descripcion, 
+                data.foto);
+            if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+            else res.status(201).send({error: "No se ha podido agregar zona turistica"});
         }
     }catch (error) {
         console.log(error)
@@ -183,7 +254,7 @@ router.post('/addZonaTuristica',checkPermission, async (req,res) => {
     }
 });
 
-router.post('/addFestividad',checkPermission, async (req,res) => {
+router.post('/festividades',checkPermission, async (req,res) => {
     const data = req.body.data;
     try{
         console.log("Agregando festividad...");
@@ -191,14 +262,38 @@ router.post('/addFestividad',checkPermission, async (req,res) => {
             data.username));
         if(city_data.length){
             console.log(city_data);
-            res.status(201).send(await admin.agregarfestividad(
-                data.username, 
+            const resul =await admin.agregarfestividad(
                 city_data[0].ID, 
                 data.dia, 
                 data.mes, 
                 data.nombre, 
                 data.descripcion, 
-                data.foto));
+                data.foto);
+            if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+            else res.status(201).send({error: "No se ha podido agregar festividad"});
+        }
+    }catch (error) {
+        console.log(error)
+        res.status(401).send({"error":error.message})
+    }
+});
+router.put('/festividades',checkPermission, async (req,res) => {
+    const data = req.body.data;
+    try{
+        console.log("Agregando festividad...");
+        city_data = await(admin.revisarExistenciaAdministracion(
+            data.username));
+        if(city_data.length){
+            console.log(city_data);
+            const resul =await admin.modificarfestividad(
+                data.id, 
+                data.dia, 
+                data.mes, 
+                data.nombre, 
+                data.descripcion, 
+                data.foto);
+            if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+            else res.status(201).send({error: "No se ha actualizar festividad"});
         }
     }catch (error) {
         console.log(error)
@@ -206,7 +301,7 @@ router.post('/addFestividad',checkPermission, async (req,res) => {
     }
 });
 
-router.post('/addPersonaje',checkPermission, async (req,res) => {
+router.post('/personajes',checkPermission, async (req,res) => {
     const data = req.body.data;
     try{
         console.log("Agregando personaje...");
@@ -214,14 +309,38 @@ router.post('/addPersonaje',checkPermission, async (req,res) => {
             data.username));
         if(city_data.length){
             console.log(city_data);
-            res.status(201).send(await admin.agregarPersonaje(
-                data.username, 
+            const resul =await admin.agregarPersonaje(
                 city_data[0].ID,
                 data.nombre, 
                 data.nacimiento, 
                 data.fallecimiento, 
                 data.descripcion, 
-                data.foto));
+                data.foto);
+            if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+            else res.status(201).send({error: "No se ha agregar personaje"});
+        }
+    }catch (error) {
+        console.log(error)
+        res.status(401).send({"error":error.message})
+    }
+});
+router.put('/personajes',checkPermission, async (req,res) => {
+    const data = req.body.data;
+    try{
+        console.log("Agregando personaje...");
+        city_data = await(admin.revisarExistenciaAdministracion(
+            data.username));
+        if(city_data.length){
+            console.log(city_data);
+            const resul =await admin.modificarPersonaje(
+                data.id, 
+                data.nombre, 
+                data.nacimiento, 
+                data.fallecimiento, 
+                data.descripcion, 
+                data.foto);
+            if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+            else res.status(201).send({error: "No se ha actualizar personaje"});
         }
     }catch (error) {
         console.log(error)
@@ -229,7 +348,7 @@ router.post('/addPersonaje',checkPermission, async (req,res) => {
     }
 });
 
-router.post('/addNota',checkPermission, async (req,res) => {
+router.post('/notas',checkPermission, async (req,res) => {
     const data = req.body.data;
     try{
         console.log("Agregando nota...");
@@ -237,12 +356,34 @@ router.post('/addNota',checkPermission, async (req,res) => {
             data.username));
         if(city_data.length){
             console.log(city_data);
-            res.status(201).send(await admin.agregarNota(
-                data.username,
+            const resul = await admin.agregarNota(
                 city_data[0].ID, 
-                data.titulo, 
+                data.nombre, 
                 data.descripcion,
-                data.foto));
+                data.foto);
+            if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+            else res.status(201).send({error: "No se ha agregar nota"});
+        }
+    }catch (error) {
+        console.log(error)
+        res.status(401).send({"error":error.message})
+    }
+});
+router.put('/notas',checkPermission, async (req,res) => {
+    const data = req.body.data;
+    try{
+        console.log("Agregando nota...");
+        city_data = await(admin.revisarExistenciaAdministracion(
+            data.username));
+        if(city_data.length){
+            console.log(city_data);
+            const resul = await admin.modificarNota(
+                data.id, 
+                data.nombre, 
+                data.descripcion, 
+                data.foto);
+            if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+            else res.status(201).send({error: "No se ha actualizar nota"});
         }
     }catch (error) {
         console.log(error)
@@ -250,7 +391,7 @@ router.post('/addNota',checkPermission, async (req,res) => {
     }
 });
 
-router.post('/addEstablecimiento',checkPermission, async (req, res) => {
+router.post('/establecimiento',checkPermission, async (req, res) => {
     const data = req.body.data;
     try{
         console.log("Agregando establecimiento");
@@ -258,7 +399,7 @@ router.post('/addEstablecimiento',checkPermission, async (req, res) => {
             data.username));
         if(city_data.length){
             console.log(city_data);
-            row=(await admin.agregarEstablecimiento(
+            const resul=(await admin.agregarEstablecimiento(
                 city_data[0].ID, 
                 data.nombre, 
                 data.tipo, 
@@ -266,7 +407,31 @@ router.post('/addEstablecimiento',checkPermission, async (req, res) => {
                 (data.correo)?data.correo:"", 
                 (data.foto)?data.foto:null));
             
-            res.send(row)
+            if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+            else res.status(201).send({error: "No se ha agregado establecimiento"});
+        }
+    }catch (error) {
+        console.log(error)
+        res.status(401).send({"error":error.message})
+    }
+});
+router.put('/establecimiento',checkPermission, async (req, res) => {
+    const data = req.body.data;
+    try{
+        console.log("Agregando establecimiento");
+        city_data = await(admin.revisarExistenciaAdministracion(
+            data.username));
+        if(city_data.length){
+            console.log(city_data);
+            const resul =(await admin.modificarEstablecimiento(
+                data.establecimiento, 
+                data.nombre, 
+                data.tipo, 
+                data.telefono, 
+                data.correo, 
+                data.foto));
+            if(resul.affectedRows!=0) res.status(201).send({status: 'OK'});
+            else res.status(201).send({error: "No se ha actualizar establecimiento"});
         }
     }catch (error) {
         console.log(error)

@@ -7,7 +7,7 @@ async function checkPermission(username, pass) {
     else return true;
 }
 async function iniciarSesion(username, pass){
-    const row = await db.query("SELECT administrador_establecimiento.idUsuario AS ID FROM administrador_establecimiento WHERE administrador_establecimiento.nombreUsuario=? AND administrador_establecimiento.claveAcceso=?",
+    const row = await db.query("SELECT administrador_establecimiento.idUsuario AS ID, IF(establecimiento_pro._idEstablecimiento, establecimiento_pro._idEstablecimiento, NULL) AS ESTABLECIMIENTO FROM administrador_establecimiento LEFT JOIN establecimiento_pro ON administrador_establecimiento.idUsuario=establecimiento_pro._idAdministrador WHERE administrador_establecimiento.nombreUsuario=? AND administrador_establecimiento.claveAcceso=?",
     [username,pass]);
     return row[0];
 }  

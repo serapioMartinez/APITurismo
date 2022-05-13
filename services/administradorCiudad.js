@@ -39,6 +39,11 @@ async function subirRepresentativa(username,id_image){
     const row = await db.query("CALL subirRepresentativa(?,?)",[username,id_image]);
     return row;
 }
+async function subirFotoPerfil(username,id_image){
+    const row = await db.query("UPDATE administrador_ciudad SET administrador_ciudad.imagenUsuario=? WHERE administrador_ciudad.nombreUsuario=? ",
+    [id_image, username]);
+    return row;
+}
 async function subirFotosCiudad(username, data,id_ciudad){
     let query = "INSERT INTO fotos_ciudad(fotos_ciudad.foto, fotos_ciudad._idCiudad, fotos_ciudad.descripcion) VALUES";
     let array = [];
@@ -57,29 +62,79 @@ async function subirFotosCiudad(username, data,id_ciudad){
     return [];
 }
 
-async function agregarPlatillo(username,id_ciudad, nombre, descripcion, foto){
+async function subirFotoItem(id, foto, item){
+    let query = "";
+    switch(item){
+        case "platillos": query="UPDATE platillos SET platillos.imagen=? WHERE platillos.idPlatillos=?";break;
+        case "establecimientos": query="UPDATE establecimientos SET establecimientos.imagenRepresentativa=? WHERE establecimientos.idEstablecimiento=?";break;
+        case "personajes": query="UPDATE personajes_importantes SET personajes_importantes.foto=? WHERE personajes_importantes.idPersonajes=?";break;
+        case "zonas": query="UPDATE zonas_turisticas SET zonas_turisticas.foto=? WHERE zonas_turisticas.idZonaTuristica=?";break;
+        case "notas": query="UPDATE notas_ciudad SET notas_ciudad.imagen=? WHERE notas_ciudad.idNotaCiudad=?";break;
+        case "festividades": query="UPDATE festividad SET festividad.imagen=? WHERE festividad.idFecha=?";break;
+    }
+    const row = await db.query(query,
+    [foto, id]);
+    return row;
+}
+
+// PLATILLOS
+async function agregarPlatillo(id_ciudad, nombre, descripcion, foto=null){
     return db.query("INSERT INTO platillos(platillos._idCiudad,platillos.nombre,platillos.descripcion, platillos.imagen) values(?,?,?,?)",[id_ciudad,nombre,descripcion,foto]);
 }
+async function modificarPlatillo(id, nombre, descripcion, foto=null){
+    return db.query("UPDATE platillos SET platillos.nombre=? ,platillos.descripcion=? , platillos.imagen=? WHERE platillos.idPlatillos=?",
+    [nombre,descripcion,foto, id]);
+}
 
-async function agregarZonaTuristica(username,id_ciudad, nombre,tipo, descripcion, foto){
+//ZONA TURISTICA
+async function agregarZonaTuristica(id_ciudad, nombre,tipo, descripcion, foto=null){
     return db.query("INSERT INTO zonas_turisticas(zonas_turisticas._idCiudad,zonas_turisticas.nombre,zonas_turisticas.tipoZona, zonas_turisticas.descripcion, zonas_turisticas.foto) values(?,?,?,?,?)",[id_ciudad,nombre, tipo,descripcion,foto]);
 }
+async function modificarZonaTuristica(id, nombre,tipo, descripcion, foto=null){
+    return db.query("UPDATE zonas_turisticas SET zonas_turisticas.nombre=? ,zonas_turisticas.tipoZona=?, zonas_turisticas.descripcion=?, zonas_turisticas.foto=? WHERE zonas_turisticas.idZonaTuristica=?",
+    [nombre, tipo,descripcion,foto,id]);
+}
 
-async function agregarfestividad(username,id_ciudad,dia, mes, nombre, descripcion, foto){
+//FESTIVIDADES
+async function agregarfestividad(id_ciudad,dia, mes, nombre, descripcion, foto=null){
     return db.query("INSERT INTO festividad(festividad._idCiudad, festividad.dia, festividad.mes, festividad.nombre, festividad.descripcion, festividad.imagen) VALUES(?,?,?,?,?,?)",[id_ciudad,dia,mes,nombre,descripcion,foto]);
 }
-async function agregarPersonaje(username, id_ciudad,nombre,nacimiento,fallecimiento,descripcion,foto){
+async function modificarfestividad(id,dia, mes, nombre, descripcion, foto=null){
+    return db.query("UPDATE festividad SET  festividad.dia=?, festividad.mes=?, festividad.nombre=?, festividad.descripcion=?, festividad.imagen=? WHERE festividad.idFecha=?",
+    [dia,mes,nombre,descripcion,foto, id]);
+}
+
+//PERSONAJES
+async function agregarPersonaje( id_ciudad,nombre,nacimiento,fallecimiento,descripcion,foto=null){
     return db.query("INSERT INTO personajes_importantes(personajes_importantes._idCiudad,personajes_importantes.nombre, personajes_importantes.anhoNacimiento, personajes_importantes.anhoFallecimiento, personajes_importantes.descripcion,personajes_importantes.foto) VALUES (?,?,?,?,?,?)",[id_ciudad,nombre, nacimiento, fallecimiento,descripcion,foto]);
 }
-async function agregarNota(username, id_ciudad, titulo, descripcion,imagen){
+async function modificarPersonaje( id,nombre,nacimiento,fallecimiento,descripcion,foto=null){
+    return db.query("UPDATE personajes_importantes SET personajes_importantes.nombre=?, personajes_importantes.anhoNacimiento=?, personajes_importantes.anhoFallecimiento=?, personajes_importantes.descripcion=?,personajes_importantes.foto=? WHERE personajes_importantes.idPersonajes=?",
+    [nombre, nacimiento, fallecimiento,descripcion,foto,id]);
+}
+
+//NOTAS
+async function agregarNota( id_ciudad, titulo, descripcion,imagen=null){
     let currentDate = new Date();
     return db.query("INSERT INTO notas_ciudad(notas_ciudad._idCiudad, notas_ciudad.titulo, notas_ciudad.descripcion, notas_ciudad.imagen, notas_ciudad.fechaPublicacion) values(?,?,?,?,?)",[id_ciudad,titulo, descripcion, imagen,`${currentDate.getFullYear()}/${currentDate.getMonth()+1}/${currentDate.getDate()}`])
 }
+async function modificarNota( id, titulo, descripcion,imagen=null){
+    return db.query("UPDATE notas_ciudad SET notas_ciudad.titulo=?, notas_ciudad.descripcion=?, notas_ciudad.imagen=? WHERE notas_ciudad.idNotaCiudad=?",
+    [titulo, descripcion, imagen, id])
+}
+
+//ESTABLECIMIENTO
 async function agregarEstablecimiento(id_ciudad, nombre, tipo, telefono, correo, foto=null){
     let resultado = await db.query("INSERT INTO establecimientos(establecimientos.nombre, establecimientos.tipoEstablecimiento, establecimientos.telefono, establecimientos.correo, establecimientos.imagenRepresentativa) values(?,?,?,?,?)",[nombre,tipo,telefono, correo, foto]);
     resultado = await db.query("INSERT INTO direccion(direccion._idEstablecimiento, direccion._idCiudad) values (?,?)",[resultado.insertId,id_ciudad])
     return resultado;
 }
+async function modificarEstablecimiento(id_establecimiento, nombre, tipo, telefono, correo, foto=null){
+    let resultado = await db.query("UPDATE establecimientos SET establecimientos.nombre=?, establecimientos.tipoEstablecimiento=?, establecimientos.telefono=?, establecimientos.correo=?, establecimientos.imagenRepresentativa=? WHERE establecimientos.idEstablecimiento=? AND establecimientos.pro=0",
+    [nombre,tipo,telefono, correo, foto, id_establecimiento]);
+    return resultado;
+}
+
 //Getters
 async function getCountITEMS(id_ciudad, item="PLATILLOS"){
     let query='';
@@ -128,6 +183,10 @@ async function removeITEM(itemID, item){
         case "NOTAS":
             query="DELETE FROM notas_ciudad WHERE notas_ciudad.idNotaCiudad=?";
             break;
+            
+        case "ESTABLECIMIENTOS":
+            query = "DELETE FROM establecimientos WHERE establecimientos.idEstablecimiento=? AND establecimientos.pro=0";
+            break;
     }
     return db.query(query,[itemID]);
     
@@ -143,12 +202,20 @@ module.exports = {
     modificarCiudad,
     subirRepresentativa,
     subirFotosCiudad,
+    subirFotoItem,
+    subirFotoPerfil,
     agregarPlatillo,
+    modificarPlatillo,
     agregarZonaTuristica,
+    modificarZonaTuristica,
     agregarfestividad,
+    modificarfestividad,
     agregarNota,
+    modificarNota,
     agregarPersonaje,
+    modificarPersonaje,
     agregarEstablecimiento,
+    modificarEstablecimiento,
     getCountITEMS,
     removeITEM
 }

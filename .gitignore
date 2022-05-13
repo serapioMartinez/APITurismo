@@ -8,4 +8,4 @@ temp/
 node_modules
 
 #Ignore credentials and token
-#services/drive/*.json
+services/drive/*.json

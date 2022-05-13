@@ -17,7 +17,7 @@ const checkPermission = async function (req, res, next) {
 };
 
 //router.use(checkPermission);
-router.post('/sesion', async (req,res)=> {
+router.post('/sesion',checkPermission, async (req,res)=> {
     console.log(req.body);
     const data = req.body.data;
     try {
@@ -32,6 +32,7 @@ router.get('/usuario', async (req, res) => {
     console.log(req.query);
     try {
         const userData =await admin.obtenerDatosUsuario(req.query.id);
+        console.log(userData)
         res.status(200).json(userData[0]);
     } catch (error) {
         res.status(400).send({error: error.message})

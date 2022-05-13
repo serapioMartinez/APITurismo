@@ -82,8 +82,14 @@ const imageUpload = multer({
 const checkPermissionCity = async function (req, res, next) {
 
     console.log("Revisando permisos")
+    console.log(req.body)
     try {
-        const permission = await adminCiudad.checkPermission(req.body.data.username, req.body.data.pass);
+        if(!req.file) {
+            console.log("Error: ", "No se ha recibido archivo")
+            res.send({error: "No se ha enviado ningun archivo"})
+            return
+        }
+        const permission = await adminCiudad.checkPermission(req.body.username, req.body.pass);
         console.log(`Permisos verificados:\n ${permission}`);
         if (permission) next();
         else {
@@ -101,7 +107,12 @@ const checkPermissionEstablishment = async function (req, res, next) {
 
     console.log("Revisando permisos")
     try {
-        const permission = await adminEstablecimiento.checkPermission(req.body.data.username, req.body.data.pass);
+        if(!req.file) {
+            console.log("Error: ", "No se ha recibido archivo")
+            res.send({error: "No se ha enviado ningun archivo"})
+            return
+        }
+        const permission = await adminEstablecimiento.checkPermission(req.body.username, req.body.pass);
         console.log(`Permisos verificados:\n ${permission}`);
         if (permission) next();
         else {
@@ -118,7 +129,12 @@ const checkPermissionEstablishment = async function (req, res, next) {
 const checkPermissionUser = async function(req, res, next){
     console.log("Revisando persimos de usuario");
     try{
-        const permission = await user.checkPermission(req.body.data.username, req.body.data.pass);
+        if(!req.file) {
+            console.log("Error: ", "No se ha recibido archivo")
+            res.send({error: "No se ha enviado ningun archivo"})
+            return
+        }
+        const permission = await user.checkPermission(req.body.username, req.body.pass);
         console.log(`Permisos verificados:\n ${permission}`);
         if (permission) next();
         else {
@@ -154,7 +170,7 @@ router.post('/uploadRepresentativaCiudad', imageUpload.single('image'), checkPer
     }, function (err, resp) {
         if (err) {
             //Handle error
-            console.log(err);
+            console.log(err.message);
             res.status(401).send({ error: err.message });
         } else {
             console.log('File Id: ', resp.data);
@@ -198,7 +214,7 @@ router.post('/uploadRepresentativaEstablecimiento', imageUpload.single('image'),
     }, function (err, resp) {
         if (err) {
             //Handle error
-            console.log(err);
+            console.log(err.message);
             res.status(401).send({ error: err.message });
         } else {
             console.log('File Id: ', resp.data);
@@ -250,7 +266,7 @@ router.post('/uploadCityPhotos', imageUpload.array('images'), checkPermissionCit
 
                 if (err) {
                     //Handle error
-                    console.log(err);
+                    console.log(err.message);
                     data_files.push({ 'error': err.message });
                 } else {
                     console.log('File Id: ', resp.data);
@@ -309,7 +325,7 @@ router.post('/uploadEstablishmentPhotos', imageUpload.array('images'), checkPerm
 
                 if (err) {
                     //Handle error
-                    console.log(err);
+                    console.log(err.message);
                     data_files.push({ 'error': err.message });
                 } else {
                     console.log('File Id: ', resp.data);
@@ -341,7 +357,7 @@ router.post('/uploadEstablishmentPhotos', imageUpload.array('images'), checkPerm
 
 router.post('/uploadTopicPhoto', imageUpload.single('image'), checkPermissionCity, async (req, res) => {
     console.log("Subiendo foto de topico de ciudad...")
-    if (!authed) {
+        if (!authed) {
         console.error("Token de acceso inexistente");
         res.status(401).send({ error: "Token de acceso inexistente" });
     }
@@ -349,7 +365,7 @@ router.post('/uploadTopicPhoto', imageUpload.single('image'), checkPermissionCit
     console.log(req.body);
     const drive = google.drive({ version: "v3", auth: oAuth2Client });
     var fileMetadata = {
-        name: `topic_city_${req.body.data.username}_${Date.now()}${path.extname(req.file.originalname)}`,
+        name: `topic_city_${req.body.username}_${Date.now()}${path.extname(req.file.originalname)}`,
         parents: ['1xjNFPDODv1S0myW1FY762074CEm7XL-O'],//Id del folder
     };
     var media = {
@@ -363,7 +379,7 @@ router.post('/uploadTopicPhoto', imageUpload.single('image'), checkPermissionCit
     }, function (err, resp) {
         if (err) {
             //Handle error
-            console.log(err);
+            console.log(err.message);
             res.status(401).send({ error: err.message });
         } else {
             console.log('File Id: ', resp.data);
@@ -395,7 +411,7 @@ router.post('/uploadUserProfilePhoto', imageUpload.single('image'), checkPermiss
     console.log(req.body);
     const drive = google.drive({ version: "v3", auth: oAuth2Client });
     var fileMetadata = {
-        name: `profile_photo_${req.body.data.username}_${Date.now()}${path.extname(req.file.originalname)}`,
+        name: `profile_photo_${req.body.username}_${Date.now()}${path.extname(req.file.originalname)}`,
         parents: ['1OESbk59DrnLNChCjys_otR-f_KbBrfOL'],//Id del folder
     };
     var media = {
@@ -409,7 +425,7 @@ router.post('/uploadUserProfilePhoto', imageUpload.single('image'), checkPermiss
     }, function (err, resp) {
         if (err) {
             //Handle error
-            console.log(err);
+            console.log(err.message);
             res.status(401).send({ error: err.message });
         } else {
             console.log('File Id: ', resp.data);
@@ -442,7 +458,7 @@ router.post('/uploadAdminCityProfilePhoto', imageUpload.single('image'), checkPe
     console.log(req.body);
     const drive = google.drive({ version: "v3", auth: oAuth2Client });
     var fileMetadata = {
-        name: `profile_photo_${req.body.data.username}_${Date.now()}${path.extname(req.file.originalname)}`,
+        name: `profile_photo_${req.body.username}_${Date.now()}${path.extname(req.file.originalname)}`,
         parents: ['1OESbk59DrnLNChCjys_otR-f_KbBrfOL'],//Id del folder
     };
     var media = {
@@ -456,7 +472,7 @@ router.post('/uploadAdminCityProfilePhoto', imageUpload.single('image'), checkPe
     }, function (err, resp) {
         if (err) {
             //Handle error
-            console.log(err);
+            console.log(err.message);
             res.status(401).send({ error: err.message });
         } else {
             console.log('File Id: ', resp.data);
@@ -468,7 +484,10 @@ router.post('/uploadAdminCityProfilePhoto', imageUpload.single('image'), checkPe
                 }
             }, function (error, response) {
 
-                if (error) res.status(201).send({ 'error': err.message });
+                if (error) {
+                    console.log(error.message)
+                    res.status(201).send({ 'error': err.message });
+                }
                 else {
                     fs.unlinkSync(req.file.path);
                     res.status(201).send(resp.data);
@@ -489,7 +508,7 @@ router.post('/uploadAdminEstablishmentProfilePhoto', imageUpload.single('image')
     console.log(req.body);
     const drive = google.drive({ version: "v3", auth: oAuth2Client });
     var fileMetadata = {
-        name: `profile_photo_${req.body.data.username}_${Date.now()}${path.extname(req.file.originalname)}`,
+        name: `profile_photo_${req.body.username}_${Date.now()}${path.extname(req.file.originalname)}`,
         parents: ['1OESbk59DrnLNChCjys_otR-f_KbBrfOL'],//Id del folder
     };
     var media = {
@@ -525,6 +544,30 @@ router.post('/uploadAdminEstablishmentProfilePhoto', imageUpload.single('image')
     });
 
 })
+
+router.delete('/imagen', (req, res)=> {
+    console.log("Eliminando archivo");
+    if (!authed) {
+        console.error("Token de acceso inexistente");
+        res.status(401).send({ error: "Token de acceso inexistente" });
+    }
+    console.log(req.body);
+    
+    const drive = google.drive({ version: "v3", auth: oAuth2Client });
+    drive.files.delete({
+        fileId: req.body.fileId
+    }, function (err, resp) {
+        if (err) {
+            //Handle error
+            console.log("Error: ", err.message);
+            res.status(401).send({ error: err.message });
+        } else {
+            console.log("Exito: ", "imagen eliminada");
+            res.status(200).send({status: "OK"})
+        }
+    });
+});
+
 
 module.exports = {
     router,
