@@ -64,6 +64,7 @@ router.get("/establecimientosPro/:idEstablecimiento", async (req,res) => {
 });
 router.get("/horario_atencion/:idEstablecimiento", async (req, res) => {
     try {
+        console.log("Obteniendo datos de horario")
         const id=req.params.idEstablecimiento;
         res.json(await non_users.obtenerHorariosAtencion(id));
     } catch (err) {
@@ -80,10 +81,48 @@ router.get("/direcciones/:idEstablecimiento", async (req, res) => {
        res.json({error: err.message});
     }
 })
-router.get("/salidasTransportes/:idEstablecimiento", async (req,res) => {
+router.get("/direccion/:id", async (req, res) => {
+    try {
+        const id=req.params.id;
+        res.json(await non_users.obtenerDireccion(id));
+    } catch (err) {
+        console.log("Error mientras se obtenian los datos de Home", err.message);
+       res.json({error: err.message});
+    }
+})
+router.get("/salida/:idSalida", async (req,res) => {
+    try {
+        const id=req.params.idSalida;
+        res.json(await non_users.obtenerSalidaTransporte(id));
+    } catch (err) {
+        console.log("Error mientras se obtenian los datos de Home", err.message);
+       res.json({error: err.message});
+    }
+});
+router.get("/salidas/:idEstablecimiento", async (req,res) => {
     try {
         const id=req.params.idEstablecimiento;
-        res.json(await non_users.obtenerSalidasTransportes(id));
+        res.json(await non_users.obtenerSalidas(id));
+    } catch (err) {
+        console.log("Error mientras se obtenian los datos de Home", err.message);
+       res.json({error: err.message});
+    }
+});
+
+router.get("/horaSalida/:idSalida", async (req,res) => {
+    try {
+        const id=req.params.idSalida;
+        res.json(await non_users.obtenerHorasSalidas(id));
+    } catch (err) {
+        console.log("Error mientras se obtenian los datos de Home", err.message);
+       res.json({error: err.message});
+    }
+});
+router.get("/salidasId/:idEstablecimiento/:idCiudad", async (req,res) => {
+    try {
+        const idEst=req.params.idEstablecimiento;
+        const idCd = req.params.idCiudad;
+        res.json(await non_users.obtenerIdSalidas(idEst,idCd));
     } catch (err) {
         console.log("Error mientras se obtenian los datos de Home", err.message);
        res.json({error: err.message});
@@ -152,4 +191,21 @@ router.get("/item/:tipoItem/:idItem", async (req,res) => {
        res.json({error: err.message});
     }
 });
+router.get('/listarCiudades', async (req, res) => {
+    try {
+        res.status(201).send(await non_users.listarCiudades());
+    } catch (error) {
+        console.log(error)
+        res.status(401).send({ "error": error.message })
+    }
+});
+router.get('/galeria', async (req, res) => {
+    const query = req.query;
+try {
+    res.json(await non_users.obtenerGaleria(query.id, query.tipo));
+} catch (err) {
+    console.log(error)
+        res.status(401).send({ "error": error.message })
+}
+})
 module.exports = router;

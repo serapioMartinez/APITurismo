@@ -17,7 +17,7 @@ const unicidadUsuario = async function (req, res, next) {
             const message=[];
             (usuario.length>0)?message.push("Usuario no Disponible"):false;
             (correo.length>0)?message.push("Direccion de correo en uso"):false;
-            res.status(403).send({ 'unique': message})
+            res.send({ 'unique': message})
         }else{
         console.log("Usuario Disponible");
         console.log(usuario)
@@ -37,7 +37,7 @@ router.post('/:typeUser', unicidadUsuario, async (req, res) => {
     try {
         type = params.typeUser.toUpperCase();
         console.log(type)
-        if(params.typeUser=="CITY"){
+        if(params.typeUser=="CIUDAD"){
             const result= await users.createAdminCity(
                 data.username, 
                 data.nombre, 
@@ -46,8 +46,9 @@ router.post('/:typeUser', unicidadUsuario, async (req, res) => {
                 data.cargo, 
                 data.clave);
             console.log(result);
-            res.status(201).send(result);
-        }else if(params.typeUser=="ESTABLISHMENT"){
+            if(result.affectedRows!=0) res.status(201).send({ID: result.insertId});
+            else res.send({error: "No se ha podico crear usuario"})
+        }else if(params.typeUser=="ESTABLECIMIENTO"){
             const result= await users.createAdminEstablisment(
                 data.username, 
                 data.nombre, 
@@ -56,7 +57,8 @@ router.post('/:typeUser', unicidadUsuario, async (req, res) => {
                 data.cargo, 
                 data.clave);
             console.log(result);
-            res.status(201).send(result);
+            if(result.affectedRows!=0) res.status(201).send({ID: result.insertId});
+            else res.send({error: "No se ha podico crear usuario"})
         }else{
             const result= await users.createUserApp(
                 data.username, 
@@ -68,7 +70,8 @@ router.post('/:typeUser', unicidadUsuario, async (req, res) => {
                 data.foto, 
                 data.clave);
             console.log(result);
-            res.status(201).send(result);
+            if(result.affectedRows!=0) res.status(201).send({ID: result.insertId});
+            else res.send({error: "No se ha podico crear usuario"})
         }
     } catch (error) {
         console.log("Ha ocurrido un error mientras se creaba el usuario");

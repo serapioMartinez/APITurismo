@@ -5,6 +5,7 @@ const admin = require('../services/administradorCiudad');
 const checkPermission = async function (req, res, next) {
     console.log("Revisando Permisos")
     const data = req.body.data;
+    console.log(req.body)
     console.log(data)
     try {
         const permission = await admin.checkPermission(data.username, data.pass);
@@ -35,7 +36,13 @@ router.put('/usuario', checkPermission, async (req, res)=>{
     console.log(req.body);
     const data = req.body.data;
     try{
-        const row= await admin.actualizarDatosUsuario(data.id,data.newUsername, data.nombre, data.correo, data.cargo, data.foto)
+        const row= await admin.actualizarDatosUsuario(
+            data.id,
+            data.newUsername, 
+            data.nombre, 
+            data.correo, 
+            data.cargo, 
+            data.foto)
         if(row.affectedRows)res.status(200).send({
             status: "OK",
             affectedRows: row.affectedRows
@@ -111,7 +118,9 @@ router.post('/subirFotoPerfil', checkPermission, async (req, res )=> {
     console.log(data);
     try {
         console.log("Subiendo foto de perfil de usuario");
-        res.status(201).send(await admin.subirFotoPerfil(data.username, data.foto))
+        const resul = await admin.subirFotoPerfil(data.username, data.foto);
+        if(resul.affectedRows==0)res.send({error: "No se pudo subir la imagen"})
+        else res.send({ok: "Proceso exitoso"})
     } catch (error) {
         console.log("Error al realizar la operacion " + Date.now());
         res.status(401).json({ 'error': error.message });
@@ -132,7 +141,7 @@ router.post('/subirRepresentativa',checkPermission,async (req, res) =>{
     }
 });
 
-router.post('/subirFotos',checkPermission, async (req, res)=> {
+router.post('/insertarFotos',checkPermission, async (req, res)=> {
     const data = req.body.data;
    try {
        console.log("Subiendo fotos de la ciudad");
@@ -141,17 +150,29 @@ router.post('/subirFotos',checkPermission, async (req, res)=> {
        if(city_data.length){
            console.log(city_data);
            console.log(city_data[0].ID)
-           res.status(201).send(await admin.subirFotosCiudad(
-               data.username, 
+           const resul =  await admin.subirFotosCiudad(
                data.images_data,
-               city_data[0].ID));
+               city_data[0].ID);
+            if(resul.length==0 || resul.affectedRows==0) res.send({error: "No se ha podido realizar el proceso"})
+            else res.json({ok: "Proceso exitoso"});
        }
    } catch (error) {
        console.log(error)
        res.status(401).send({"error":error.message})
    }
 })
-
+router.delete('/foto', checkPermission, async (req, res) => {
+    const data = req.body.data;
+    try {
+        console.log("Eliminando fotos de establecimiento");
+        const resul = await admin.eliminarFoto(data.id)
+        if(resul.length==0 || resul.affectedRows==0) res.send({error: "No se ha podido realizar el proceso"})
+        else res.json({ok: "Proceso exitoso"});
+    } catch (error) {
+        console.log(error)
+        res.status(401).send({ "error": error.message })
+    }
+})
 router.post('/subirFotoItem', checkPermission, async (req, res)=>{
     const data = req.body.data;
     console.log(data)
@@ -434,7 +455,19 @@ router.put('/establecimiento',checkPermission, async (req, res) => {
             else res.status(201).send({error: "No se ha actualizar establecimiento"});
         }
     }catch (error) {
-        console.log(error)
+        console.log(error.message)
+        res.status(401).send({"error":error.message})
+    }
+})
+router.delete('/delete/:item/:id',checkPermission,async (req, res) => {
+    const data = req.params;
+    try {
+        console.log("Eliminando elemento de ", data.item.toUpperCase());
+        const resul = await admin.removeITEM(data.id, data.item.toUpperCase());
+        if(resul.affectedRows!=0) res.send({ID: data.id})
+        else res.send({error: "No se ha podido eliminar"});
+    } catch (err) {
+        console.log(error.message)
         res.status(401).send({"error":error.message})
     }
 })

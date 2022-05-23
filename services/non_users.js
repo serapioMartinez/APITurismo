@@ -15,7 +15,7 @@ async function obtenerDatosCiudad(idCiudad){
 }
 async function obtenerDatosEstablecimiento(idEstablecimiento, idCiudad=null){
     let query = "";
-    if (idCiudad==null || idCiudad==0) query = "SELECT establecimientos.idEstablecimiento as ID, establecimientos.nombre AS NOMBRE, establecimientos.tipoEstablecimiento AS TIPO, establecimientos.telefono AS TELEFONO, establecimientos.correo AS CORREO, establecimientos.imagenRepresentativa AS FOTO, establecimientos.pro AS PRO, establecimientos.descripcion as DESCRIPCION, establecimiento_pro.calificacion as CALIFICACION FROM establecimientos JOIN establecimiento_pro ON establecimiento_pro._idEstablecimiento=establecimientos.idEstablecimiento WHERE establecimientos.idEstablecimiento=?"
+    if (idCiudad==null || idCiudad==0) query = "SELECT establecimientos.idEstablecimiento as ID, establecimientos.nombre AS NOMBRE, establecimientos.tipoEstablecimiento AS TIPO, establecimientos.telefono AS TELEFONO, establecimientos.correo AS CORREO, establecimientos.imagenRepresentativa AS FOTO, establecimientos.pro AS PRO, establecimientos.descripcion as DESCRIPCION, establecimiento_pro.calificacion as CALIFICACION, establecimiento_pro.paginaWeb as WEB FROM establecimientos JOIN establecimiento_pro ON establecimiento_pro._idEstablecimiento=establecimientos.idEstablecimiento WHERE establecimientos.idEstablecimiento=?"
     else query="SELECT establecimientos.idEstablecimiento as ID, establecimientos.nombre AS NOMBRE, establecimientos.tipoEstablecimiento AS TIPO, establecimientos.telefono AS TELEFONO, establecimientos.correo AS CORREO, establecimientos.imagenRepresentativa AS FOTO, establecimientos.pro AS PRO, establecimientos.descripcion as DESCRIPCION, direccion.calle AS CALLE, direccion.colonia AS COLONIA, direccion.numero AS NUMERO, direccion.cp AS CP FROM establecimientos JOIN direccion ON establecimientos.idEstablecimiento=direccion._idEstablecimiento WHERE establecimientos.idEstablecimiento=? AND direccion._idCiudad=?";
     return await db.query(query,(idCiudad==null || idCiudad==0)?[idEstablecimiento]:[idEstablecimiento, idCiudad]);
 }
@@ -26,10 +26,22 @@ async function obtenerHorariosAtencion(idEstablecimiento){
     return db.query("SELECT horario_atencion.idHorarioAtencion AS ID, horario_atencion.lunes AS LUNES, horario_atencion.martes AS MARTES, horario_atencion.miercoles AS MIERCOLES, horario_atencion.jueves AS JUEVES, horario_atencion.viernes AS VIERNES, horario_atencion.sabado AS SABADO, horario_atencion.domingo AS DOMINGO FROM horario_atencion WHERE horario_atencion._idEstablecimiento=?",[idEstablecimiento]);
 }
 async function obtenerDirecciones(idEstablecimiento){
-    return db.query("SELECT direccion.idDireccion AS ID, direccion.colonia AS COLONIA, direccion.numero AS NUMERO, direccion.cp AS CP, direccion.calle AS CALLE, direccion._idCiudad AS ID_CIUDAD, ciudades.nombreCiudad AS CIUDAD FROM direccion JOIN direccion._idCiudad= ciudades.idCiudad WHERE direccion._idEstablecimiento=?",[idEstablecimiento])
+    return db.query("SELECT direccion.idDireccion AS ID, ciudades.nombreCiudad AS NOMBRE FROM direccion JOIN ciudades ON direccion._idCiudad= ciudades.idCiudad WHERE direccion._idEstablecimiento=?",[idEstablecimiento])
 }
-async function obtenerSalidasTransportes(idEstablecimiento){
-    return db.query("SELECT salidas_transporte.idSalidasTransporte AS ID, salidas_transporte.dia AS DIA, salidas_transporte.duracionViaje AS DURACION, ciudades.nombreCiudad AS DESTINO FROM salidas_transporte JOIN ciudades ON salidas_transporte._idCiudadDestino=ciudades.idCiudad WHERE salidas_transporte._idTransporte=?",[idEstablecimiento]);
+async function obtenerDireccion(idDireccion){
+    return db.query("SELECT direccion.colonia AS COLONIA, direccion.numero AS NUMERO, direccion.cp AS CP, direccion.calle AS CALLE, direccion._idCiudad AS ID_CIUDAD, ciudades.nombreCiudad AS CIUDAD FROM direccion JOIN ciudades ON direccion._idCiudad= ciudades.idCiudad WHERE direccion.idDireccion=?",[idDireccion]);
+}
+async function obtenerSalidaTransporte(idSalida){
+    return db.query("SELECT salidas_transporte.dia as DIA, salidas_transporte.duracionViaje AS DURACION FROM salidas_transporte WHERE salidas_transporte.idSalidasTransporte=?",[idSalida]);
+}
+async function obtenerSalidas(idEstablecimiento){
+    return db.query("SELECT DISTINCT salidas_transporte._idCiudadDestino AS ID, ciudades.nombreCiudad AS NOMBRE FROM salidas_transporte JOIN ciudades ON salidas_transporte._idCiudadDestino=ciudades.idCiudad JOIN establecimientos ON salidas_transporte._idTransporte=establecimientos.idEstablecimiento WHERE salidas_transporte._idTransporte=?",[idEstablecimiento]);
+}
+async function obtenerIdSalidas(idEstablecimiento, idCiudad){
+    return db.query("SELECT salidas_transporte.idSalidasTransporte AS ID, salidas_transporte.dia as DIA, salidas_transporte.duracionViaje AS DURACION FROM salidas_transporte WHERE salidas_transporte._idTransporte=? AND salidas_transporte._idCiudadDestino=? ORDER BY salidas_transporte.dia",[idEstablecimiento, idCiudad]);
+}
+async function obtenerHorasSalidas(idSalida){
+    return db.query("SELECT hora_salida.idHora as ID, hora_salida.hora AS HORA FROM hora_salida WHERE hora_salida._idSalidasTransporte=?",[idSalida])
 }
 async function consultarEstablecimientos(idCiudad=0, tipo="NT", page=0){
     let query="";
@@ -37,7 +49,7 @@ async function consultarEstablecimientos(idCiudad=0, tipo="NT", page=0){
         query=`SELECT establecimientos.idEstablecimiento as ID, establecimientos.nombre as NOMBRE, establecimientos.tipoEstablecimiento AS TIPO, IF(establecimientos.pro=1,establecimiento_pro.calificacion,0) AS CALIFICACION FROM establecimientos LEFT JOIN establecimiento_pro ON establecimiento_pro._idEstablecimiento=establecimientos.idEstablecimiento ORDER BY CALIFICACION DESC,ID DESC LIMIT ${page*10},10`;
         return db.query(query,[])
     }else{
-        query=`SELECT establecimientos.idEstablecimiento as ID, establecimientos.nombre AS NOMBRE, IF(establecimientos.pro=1, establecimiento_pro.calificacion,0) AS CALIFICACION FROM establecimientos LEFT JOIN establecimiento_pro ON establecimientos.idEstablecimiento=establecimiento_pro._idEstablecimiento JOIN direccion ON direccion._idEstablecimiento=establecimientos.idEstablecimiento  WHERE ${(tipo!="NT")?"establecimientos.tipoEstablecimiento=?  AND":""} direccion._idCiudad=? ORDER BY CALIFICACION DESC, ID DESC LIMIT ${page*10},10`;
+        query=`SELECT DISTINCT  establecimientos.idEstablecimiento as ID, establecimientos.nombre AS NOMBRE,establecimientos.pro AS PRO , IF(establecimientos.pro=1, establecimiento_pro.calificacion,0) AS CALIFICACION FROM establecimientos LEFT JOIN establecimiento_pro ON establecimientos.idEstablecimiento=establecimiento_pro._idEstablecimiento JOIN direccion ON direccion._idEstablecimiento=establecimientos.idEstablecimiento  WHERE ${(tipo!="NT")?"establecimientos.tipoEstablecimiento=?  AND":""} direccion._idCiudad=? ORDER BY CALIFICACION DESC, ID DESC LIMIT ${page*10},10`;
         return db.query(query,(tipo!="NT")?[tipo, idCiudad]:[idCiudad]);
     }
 }
@@ -86,6 +98,18 @@ async function obtenerPersonaje(idPersonaje){
 async function obtenerNota(idNota){
     return db.query("SELECT notas_ciudad.idNotaCiudad AS ID, notas_ciudad.titulo AS TITULO, notas_ciudad.descripcion AS DESCRIPCION, notas_ciudad.fechaPublicacion AS FECHA, notas_ciudad.imagen AS FOTO, ciudades.nombreCiudad as CIUDAD FROM notas_ciudad JOIN ciudades on notas_ciudad._idCiudad=ciudades.idCiudad WHERE notas_ciudad.idNotaCiudad=?",[idNota]);
 }
+async function listarCiudades(){
+    return await db.query("SELECT ciudades.idCiudad AS ID, ciudades.nombreCiudad AS CIUDAD FROM ciudades",[]);
+}
+async function obtenerGaleria(id, tipo="CIUDAD"){
+    tipo=tipo.toUpperCase();
+    if(tipo=="CIUDAD"){
+        return await db.query("SELECT fotos_ciudad.foto AS FOTO FROM fotos_ciudad WHERE fotos_ciudad._idCiudad=?",[id])
+    }else{
+        return await db.query("SELECT fotos_establecimiento.foto AS FOTO FROM fotos_establecimiento WHERE fotos_establecimiento._idEstablecimiento=? ",[id])        
+    }
+}
+
 module.exports={
     getHomeData,
     obtenerDatosCiudad,
@@ -93,7 +117,11 @@ module.exports={
     obtenerDatosProEstablecimiento,
     obtenerHorariosAtencion,
     obtenerDirecciones,
-    obtenerSalidasTransportes,
+    obtenerDireccion,
+    obtenerSalidaTransporte,
+    obtenerSalidas,
+    obtenerIdSalidas,
+    obtenerHorasSalidas,
     buscarCiudades,
     consultarEstablecimientos,
     consultarNotas,
@@ -106,5 +134,7 @@ module.exports={
     obtenerNota,
     obtenerPersonaje,
     obtenerPlatillo,
-    obtenerZonaTuristica
+    obtenerZonaTuristica,
+    listarCiudades,
+    obtenerGaleria
 }

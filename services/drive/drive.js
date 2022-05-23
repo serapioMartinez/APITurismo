@@ -84,7 +84,7 @@ const checkPermissionCity = async function (req, res, next) {
     console.log("Revisando permisos")
     console.log(req.body)
     try {
-        if(!req.file) {
+        if(!req.file && !req.files) {
             console.log("Error: ", "No se ha recibido archivo")
             res.send({error: "No se ha enviado ningun archivo"})
             return
@@ -107,7 +107,7 @@ const checkPermissionEstablishment = async function (req, res, next) {
 
     console.log("Revisando permisos")
     try {
-        if(!req.file) {
+        if(!req.file && !req.files) {
             console.log("Error: ", "No se ha recibido archivo")
             res.send({error: "No se ha enviado ningun archivo"})
             return
@@ -298,8 +298,8 @@ router.post('/uploadCityPhotos', imageUpload.array('images'), checkPermissionCit
 
 router.post('/uploadEstablishmentPhotos', imageUpload.array('images'), checkPermissionEstablishment, async (req, res) => {
     if (!authed) res.status(401).send({ error: "Token de acceso inexistente" });
-    //console.log(req.files)
-    //console.log(req.body)
+    console.log(req.files)
+    console.log(req.body)
     let data_files = [];
     const drive = google.drive({ version: "v3", auth: oAuth2Client });
     for (let i = 0; i < req.files.length; i++) {

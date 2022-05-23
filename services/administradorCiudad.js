@@ -44,14 +44,13 @@ async function subirFotoPerfil(username,id_image){
     [id_image, username]);
     return row;
 }
-async function subirFotosCiudad(username, data,id_ciudad){
+async function subirFotosCiudad(data,id_ciudad){
     let query = "INSERT INTO fotos_ciudad(fotos_ciudad.foto, fotos_ciudad._idCiudad, fotos_ciudad.descripcion) VALUES";
     let array = [];
     if(data){
         data.forEach(element => {
-            query+=`(?,${id_ciudad},?),`;
-            array.push(element.ID);
-            array.push(element.descripcion);
+            query+=` (?,${id_ciudad},''),`;
+            array.push(element.FOTO);
         });
         query=query.substring(0,query.length-1)
         console.log(query);
@@ -61,7 +60,11 @@ async function subirFotosCiudad(username, data,id_ciudad){
     }
     return [];
 }
-
+async function eliminarFoto(id){
+    const row = await db.query("DELETE FROM fotos_ciudad WHERE fotos_ciudad.foto=?",
+    [id]);
+    return row;
+};
 async function subirFotoItem(id, foto, item){
     let query = "";
     switch(item){
@@ -202,6 +205,7 @@ module.exports = {
     modificarCiudad,
     subirRepresentativa,
     subirFotosCiudad,
+    eliminarFoto,
     subirFotoItem,
     subirFotoPerfil,
     agregarPlatillo,

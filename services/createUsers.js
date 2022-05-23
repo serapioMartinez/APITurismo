@@ -7,13 +7,13 @@ async function checkUserExist(type="USER", username){
     console.log("CheckUsername: "+type+" -> "+username);
     let query="";
     switch(type){
-        case "USER":
+        case "USUARIO":
             query="SELECT usuario_app.idUsuario as ID FROM usuario_app WHERE usuario_app.nombreUsuario=?";
             break;
-        case "CITY":
+        case "CIUDAD":
             query="SELECT administrador_ciudad.idUsuario as ID FROM administrador_ciudad WHERE administrador_ciudad.nombreUsuario=?";
             break;
-        case "ESTABLISHMENT":
+        case "ESTABLECIMIENTO":
             query="SELECT administrador_establecimiento.idUsuario as ID FROM administrador_establecimiento WHERE administrador_establecimiento.nombreUsuario=?";
             break;
         default:
@@ -31,13 +31,13 @@ async function checkMailIsInUse(type="USER", mail){
     console.log("CheckMail: "+type+" -> "+mail);
     let query="";
     switch(type){
-        case "USER":
+        case "USUARIO":
             query="SELECT usuario_app.idUsuario as ID FROM usuario_app WHERE usuario_app.correo=?";
             break;
-        case "CITY":
+        case "CIUDAD":
             query="SELECT administrador_ciudad.idUsuario as ID FROM administrador_ciudad WHERE administrador_ciudad.correo=?";
             break;
-        case "ESTABLISHMENT":
+        case "ESTABLECIMIENTO":
             query="SELECT administrador_establecimiento.idUsuario as ID FROM administrador_establecimiento WHERE administrador_establecimiento.correo=?";
             break;
         default:
