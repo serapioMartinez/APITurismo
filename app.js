@@ -10,10 +10,7 @@ const users_app = require('./routes/user_app');
 const create_users= require('./routes/createUsers');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-/*
-var multer = require('multer');
-var upload = multer();
-*/
+
 drive.autorizar();
 app.use(bodyParser.json());
 app.use(
@@ -21,11 +18,9 @@ app.use(
         extended:true
     })
 );
+
 app.use(cors());
-/*
-app.use(upload.any()); 
-app.use(express.static('public'));
-*/
+
 app.get('/', (req, res) => {
     console.log(req)
     res.send("Funciona!");

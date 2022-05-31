@@ -20,9 +20,6 @@ const checkPermission = async function (req, res, next) {
     }
 };
 
-//router.use(imageUpload.any());
-//router.use(express.static('public'))
-
 router.get('/usuario', async (req, res)=>{
     console.log(req.query);
     try {

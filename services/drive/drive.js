@@ -76,8 +76,6 @@ const imageStorage = multer.diskStorage({
 const imageUpload = multer({
     storage: imageStorage
 });
-//router.use(checkPermission);
-
 
 const checkPermissionCity = async function (req, res, next) {
 
@@ -239,8 +237,6 @@ router.post('/uploadRepresentativaEstablecimiento', imageUpload.single('image'),
 
 router.post('/uploadCityPhotos', imageUpload.array('images'), checkPermissionCity, async (req, res) => {
     if (!authed) res.status(401).send({ error: "Token de acceso inexistente" });
-    //console.log(req.files)
-    //console.log(req.body)
     let data_files = [];
     const drive = google.drive({ version: "v3", auth: oAuth2Client });
     for (let i = 0; i < req.files.length; i++) {
